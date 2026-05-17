@@ -89,6 +89,10 @@
   .squadra-head { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
   .squadra-head h3 { font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 2px; }
   .squadra-badge { font-size: 10px; padding: 3px 9px; border-radius: 2px; flex-shrink: 0; margin-left: 8px; }
+  /* Riga capitana */
+  .squadra-cap { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .cap-icon { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); background: rgba(245,200,66,0.1); padding: 2px 7px; border-radius: 2px; flex-shrink: 0; }
+  .cap-name { color: var(--text); font-weight: 500; }
   .squadra-players { padding: 4px 0; max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
   .squadra-players.open { max-height: 1200px; }
   .player-row { display: flex; align-items: center; gap: 10px; padding: 7px 16px; border-bottom: 1px solid rgba(43,30,36,0.5); font-size: 12px; transition: background 0.15s; }
@@ -229,8 +233,16 @@
       <div class="sec-sub">La storia del torneo femminile dei quartieri di Benevento</div>
     </div>
     <div class="storia-grid">
-      <div class="storia-card"><div class="storia-ed">I Edizione · 2025</div><div class="storia-trophy">🥇</div><div class="storia-winner">— — —</div></div>
-      <div class="storia-card current"><div class="storia-ed" style="color:var(--pink)">II Edizione · 2026</div><div class="storia-trophy">⚡</div><div class="storia-winner">In corso</div></div>
+      <div class="storia-card">
+        <div class="storia-ed">I Edizione · 2025</div>
+        <div class="storia-trophy">🥇</div>
+        <div class="storia-winner">MEDINA</div>
+      </div>
+      <div class="storia-card current">
+        <div class="storia-ed" style="color:var(--pink)">II Edizione · 2026</div>
+        <div class="storia-trophy">⚡</div>
+        <div class="storia-winner">In corso</div>
+      </div>
     </div>
   </div>
 </div>
@@ -338,7 +350,9 @@ async function loadSquadre() {
   }
 }
 
-// ─── PARSING RIGHE API (senza livelli, senza capitani) ───────────────────────
+// ─── PARSING RIGHE API (con capitane via marker (K)) ──────────────────────────
+const KRegex = /\s*\(\s*[Kk]\s*\)/g;
+
 function parseRows(rows) {
   if (!rows.length) return [];
 
@@ -350,7 +364,7 @@ function parseRows(rows) {
   headerRow.forEach((cell, i) => {
     const nome = (cell.userEnteredValue?.stringValue || '').trim();
     if (nome) {
-      squadre.push({ nome, giocatrici: [] });
+      squadre.push({ nome, capitana: '', giocatrici: [] });
       colIndices.push(i);
     }
   });
@@ -361,9 +375,20 @@ function parseRows(rows) {
     colIndices.forEach((ci, si) => {
       const cell = cells[ci];
       if (!cell) return;
-      const nome = (cell.userEnteredValue?.stringValue || '').trim();
+
+      const raw = (cell.userEnteredValue?.stringValue || '').trim();
+      if (!raw) return;
+
+      const isCapitana = KRegex.test(raw);
+      KRegex.lastIndex = 0;
+      const nome = raw.replace(/\s*\(\s*[Kk]\s*\)/g, '').trim();
       if (!nome) return;
-      squadre[si].giocatrici.push(nome);
+
+      if (isCapitana && !squadre[si].capitana) {
+        squadre[si].capitana = nome;
+      } else {
+        squadre[si].giocatrici.push(nome);
+      }
     });
   }
 
@@ -384,7 +409,8 @@ function buildSquadre(squadre) {
 
   squadre.forEach((s, idx) => {
     const c = colori[idx % colori.length];
-    totGiocatrici += s.giocatrici.length;
+    const totCard = (s.capitana ? 1 : 0) + s.giocatrici.length;
+    totGiocatrici += totCard;
 
     const playersHTML = s.giocatrici.map(nome => `
       <div class="player-row">
@@ -393,6 +419,13 @@ function buildSquadre(squadre) {
       </div>
     `).join('');
 
+    const capHTML = s.capitana
+      ? `<div class="squadra-cap" style="background:${c.dim};border-bottom:1px solid ${c.h}20;">
+           <span class="cap-icon">CAP</span>
+           <span class="cap-name">${s.capitana}</span>
+         </div>`
+      : '';
+
     const card = document.createElement('div');
     card.className = 'squadra-card';
     card.dataset.idx = idx;
@@ -400,8 +433,9 @@ function buildSquadre(squadre) {
     card.innerHTML = `
       <div class="squadra-head" onclick="togglePlayers(${idx})" style="background:${c.b};border-bottom:1px solid ${c.h};">
         <h3 style="color:${c.t};">${s.nome}</h3>
-        <span class="squadra-badge" style="color:${c.t};background:${c.dim};">${s.giocatrici.length} gioc.</span>
+        <span class="squadra-badge" style="color:${c.t};background:${c.dim};">${totCard} gioc.</span>
       </div>
+      ${capHTML}
       <div class="squadra-players" id="players-${idx}">${playersHTML}</div>
       <div class="squadra-toggle" onclick="togglePlayers(${idx})" id="toggle-${idx}" style="border-top-color:${c.h};color:${c.t};opacity:0.6;">▼ Vedi tutte le giocatrici</div>
     `;
@@ -421,10 +455,11 @@ function filterSquadre(q) {
     const s = squadreData[i];
     if (!s) return;
     const matchTeam   = s.nome.toLowerCase().includes(q);
+    const matchCap    = s.capitana.toLowerCase().includes(q);
     const matchPlayer = s.giocatrici.some(n => n.toLowerCase().includes(q));
-    const match = !q || matchTeam || matchPlayer;
+    const match = !q || matchTeam || matchCap || matchPlayer;
     card.classList.toggle('hidden', !match);
-    if (q && matchPlayer && !matchTeam) {
+    if (q && (matchPlayer || matchCap) && !matchTeam) {
       document.getElementById(`players-${i}`)?.classList.add('open');
       const tog = document.getElementById(`toggle-${i}`);
       if (tog) tog.textContent = '▲ Chiudi';
