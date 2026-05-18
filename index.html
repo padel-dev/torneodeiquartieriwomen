@@ -204,7 +204,6 @@
 <!-- SVG SYMBOLS -->
 <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
   <defs>
-    <!-- Arco di Traiano -->
     <symbol id="sym-traiano" viewBox="0 0 64 64">
       <rect x="0" y="57" width="64" height="7" rx="1" fill="currentColor"/>
       <rect x="0" y="52" width="64" height="5" rx="1" fill="currentColor" opacity="0.7"/>
@@ -220,7 +219,6 @@
       <rect x="4"  y="3"  width="56" height="1.5" rx="0.5" fill="white" opacity="0.2"/>
       <rect x="4"  y="6"  width="56" height="1.5" rx="0.5" fill="white" opacity="0.2"/>
     </symbol>
-    <!-- Chiesa di Arechi -->
     <symbol id="sym-arechi" viewBox="0 0 56 64">
       <rect x="0"  y="58" width="56" height="6" rx="1" fill="currentColor"/>
       <rect x="4"  y="26" width="48" height="33" rx="1" fill="currentColor"/>
@@ -425,8 +423,16 @@ const colori = [
 let squadreData = [];
 let gironiData  = {};
 
+// Converte numero seriale Google Sheets in stringa "d/m/yy"
+function serialToDateStr(n) {
+  const d = new Date(1899, 11, 30);
+  d.setDate(d.getDate() + Math.floor(n));
+  return `${d.getDate()}/${d.getMonth() + 1}/${String(d.getFullYear()).slice(2)}`;
+}
+
 async function fetchSheet(sheetName) {
-  const fields = 'sheets.data.rowData.values(userEnteredValue)';
+  // Richiede sia userEnteredValue che formattedValue
+  const fields = 'sheets.data.rowData.values(userEnteredValue,formattedValue)';
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}`
     + `?ranges=${encodeURIComponent(sheetName)}`
     + `&fields=${encodeURIComponent(fields)}`
@@ -440,21 +446,29 @@ async function fetchSheet(sheetName) {
 function parseGirone(rows) {
   const partite = [];
   let giornata = '';
+
+  // Legge la cella: preferisce userEnteredValue,
+  // usa formattedValue come fallback per stringhe vuote,
+  // converte numeri seriali data in stringa leggibile.
   const val = (cells, i) => {
-  const c = cells[i]; if (!c) return '';
-  const v = c.userEnteredValue; if (!v) return '';
-  if (v.numberValue !== undefined && v.stringValue === undefined) {
-    // Data seriale Google Sheets (giorni dal 30/12/1899)
-    const d = new Date(1899, 11, 30);
-    d.setDate(d.getDate() + Math.floor(v.numberValue));
-    return `${d.getDate()}/${d.getMonth()+1}/26`;
-  }
-  return (v.stringValue ?? v.numberValue?.toString() ?? '').trim();
-};
+    const c = cells[i]; if (!c) return '';
+    const fmt = (c.formattedValue || '').trim();
+    const v = c.userEnteredValue;
+    if (!v) return fmt; // nessun valore inserito → usa formattedValue
+    // Numero seriale data (non ha stringValue ma ha numberValue)
+    if (v.numberValue !== undefined && v.stringValue === undefined) {
+      return serialToDateStr(v.numberValue);
+    }
+    const str = (v.stringValue ?? v.numberValue?.toString() ?? '').trim();
+    return str || fmt; // se stringValue è vuoto usa formattedValue
+  };
+
   for (let r = 0; r < rows.length; r++) {
     const cells = rows[r].values || [];
-    const a = val(cells, 0);console.log('ROW', r, '→', cells.map(c => c?.userEnteredValue?.stringValue ?? c?.userEnteredValue?.numberValue ?? '—').join(' | ')); if (!a) continue;
+    const a = val(cells, 0); if (!a) continue;
     if (/giornata/i.test(a)) { giornata = a; continue; }
+    // Salta la riga header (contiene "Data" nella colonna 2)
+    if (/^data$/i.test(val(cells, 2))) continue;
     const sq2 = val(cells, 1); if (!sq2) continue;
     partite.push({
       giornata, sq1: a, sq2,
@@ -466,6 +480,7 @@ function parseGirone(rows) {
       p2:     val(cells, 7),
     });
   }
+
   const map = {};
   const ensure = n => { if (!map[n]) map[n] = {nome:n,pt:0,g:0,v:0,p:0,par:0}; };
   partite.forEach(p => {
@@ -483,12 +498,13 @@ function parseGirone(rows) {
   return { partite, squadre };
 }
 
-/* parse data "dd/mm" → { day, month, weekday } */
+/* parse data "d/m/yy" o "d/m" → { day, month, weekday, key } */
 function parseData(raw) {
   if (!raw) return null;
   const p = raw.split('/');
   if (p.length < 2) return null;
   const d = parseInt(p[0]), m = parseInt(p[1]) - 1;
+  if (isNaN(d) || isNaN(m)) return null;
   const date = new Date(2026, m, d);
   return { day: d, month: MESI[m], weekday: GIORNI_SETTIMANA[date.getDay()], key: `${d}-${m}` };
 }
@@ -503,7 +519,6 @@ function buildCalendario() {
   const container = document.getElementById('calendario-container');
   container.innerHTML = '';
 
-  // Raccoglie tutte le partite con riferimento al girone
   const allPartite = [];
   GIRONE_CFG.forEach(cfg => {
     const data = gironiData[cfg.name];
@@ -511,7 +526,7 @@ function buildCalendario() {
     data.partite.forEach(p => allPartite.push({ ...p, cfg }));
   });
 
-  // Raggruppa per data
+  // Raggruppa per data mantenendo l'ordine cronologico
   const giorni = {};
   const ordineGiorni = [];
   allPartite.forEach(p => {
@@ -521,7 +536,6 @@ function buildCalendario() {
     giorni[key].partite.push(p);
   });
 
-  // Rimuove duplicati ordine
   const keysUnique = [...new Set(ordineGiorni)];
 
   keysUnique.forEach(key => {
@@ -531,7 +545,6 @@ function buildCalendario() {
     const block = document.createElement('div');
     block.className = 'day-block';
 
-    // Header giorno
     const header = document.createElement('div');
     header.className = 'day-header';
     if (info) {
@@ -547,7 +560,6 @@ function buildCalendario() {
     }
     block.appendChild(header);
 
-    // Partite del giorno
     gruppo.partite.forEach(p => {
       const cfg = p.cfg;
       const campoCls = p.campo === 'ROSSO' ? 'campo-rosso-bg' : 'campo-blu-bg';
@@ -668,14 +680,15 @@ function parseRose(rows) {
   const header = rows[0].values || [];
   const squadre = [], cols = [];
   header.forEach((cell, i) => {
-    const n = (cell.userEnteredValue?.stringValue || '').trim();
+    const n = (cell.userEnteredValue?.stringValue || cell.formattedValue || '').trim();
     if (n) { squadre.push({nome:n,capitana:'',giocatrici:[]}); cols.push(i); }
   });
   for (let r = 1; r < rows.length; r++) {
     const cells = rows[r].values || [];
     cols.forEach((ci, si) => {
       const cell = cells[ci]; if (!cell) return;
-      const raw = (cell.userEnteredValue?.stringValue || '').trim(); if (!raw) return;
+      const raw = (cell.userEnteredValue?.stringValue || cell.formattedValue || '').trim();
+      if (!raw) return;
       const isCap = KRegex.test(raw); KRegex.lastIndex = 0;
       const nome = raw.replace(/\s*\(\s*[Kk]\s*\)/g,'').trim(); if (!nome) return;
       if (isCap && !squadre[si].capitana) squadre[si].capitana = nome;
