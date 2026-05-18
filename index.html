@@ -447,7 +447,7 @@ function parseGirone(rows) {
   };
   for (let r = 0; r < rows.length; r++) {
     const cells = rows[r].values || [];
-    const a = val(cells, 0); if (!a) continue;
+    const a = val(cells, 0);console.log('ROW', r, '→', cells.map(c => c?.userEnteredValue?.stringValue ?? c?.userEnteredValue?.numberValue ?? '—').join(' | ')); if (!a) continue;
     if (/giornata/i.test(a)) { giornata = a; continue; }
     const sq2 = val(cells, 1); if (!sq2) continue;
     partite.push({
