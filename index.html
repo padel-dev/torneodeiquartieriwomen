@@ -59,44 +59,69 @@
   /* ── CALENDARIO ── */
   .day-block { margin-bottom: 2.5rem; }
 
-  .day-header { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
-  .day-date-box {
-    background: var(--card); border:1px solid var(--border); border-radius:4px;
-    padding:6px 14px; display:flex; flex-direction:column; align-items:center;
-    min-width:58px; flex-shrink:0;
+  .day-header {
+    display: flex; align-items: center; gap: 14px;
+    padding-bottom: 12px; margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
   }
-  .day-num { font-family:var(--font-display); font-size:2rem; line-height:1; color:#fff; }
-  .day-month { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--pink); margin-top:1px; }
-  .day-weekday { font-size:12px; letter-spacing:1px; color:var(--muted); font-weight:500; text-transform:uppercase; }
-  .day-hr { flex:1; height:1px; background:var(--border); }
+  .day-date-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 4px;
+    padding: 6px 14px; display: flex; flex-direction: column; align-items: center;
+    min-width: 58px; flex-shrink: 0;
+  }
+  .day-num { font-family: var(--font-display); font-size: 2rem; line-height: 1; color: #fff; }
+  .day-month { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--pink); margin-top: 1px; }
+  .day-weekday { font-size: 12px; letter-spacing: 1px; color: var(--muted); font-weight: 500; text-transform: uppercase; }
 
-  .match-card { border-radius:4px; border:1px solid var(--border); margin-bottom:8px; overflow:hidden; }
+  /* girone group */
+  .girone-group { margin-bottom: 8px; }
 
-  /* campo sfondo */
-  .campo-bar { padding:5px 14px; display:flex; align-items:center; gap:8px; }
-  .campo-rosso-bg { background:#2a0d17; border-bottom:1px solid #4d1a2e; }
-  .campo-blu-bg   { background:#0a0d2a; border-bottom:1px solid #1a2050; }
-  .campo-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-  .campo-rosso-bg .campo-dot { background:#e8408a; }
-  .campo-blu-bg   .campo-dot { background:#6f90e8; }
-  .campo-lbl { font-size:10px; font-weight:500; letter-spacing:2px; text-transform:uppercase; }
-  .campo-rosso-bg .campo-lbl { color:#f06faa; }
-  .campo-blu-bg   .campo-lbl { color:#6fb0e8; }
+  .girone-group-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    border-radius: 4px 4px 0 0;
+    font-size: 10px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+  }
+  .gg-traiano { background: #2a0d17; border: 1px solid #4d1a2e; color: #f06faa; border-bottom: none; }
+  .gg-arechi  { background: #0a0d2a; border: 1px solid #1a2050; color: #a09ae8; border-bottom: none; }
 
-  .match-body { background:var(--card); padding:10px 14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .girone-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .girone-dot-t { background: #e8408a; }
+  .girone-dot-a { background: #7F77DD; }
 
-  /* girone badge */
-  .girone-badge { display:flex; align-items:center; gap:6px; padding:4px 11px; border-radius:3px; font-size:11px; font-weight:500; white-space:nowrap; flex-shrink:0; letter-spacing:0.5px; }
-  .badge-traiano { background:rgba(232,64,138,0.1); color:#f06faa; border:1px solid #4d1a32; }
-  .badge-arechi  { background:rgba(127,119,221,0.1); color:#a09ae8; border:1px solid #2a2560; }
-  .badge-icon { width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+  /* match row — singola riga */
+  .match-row {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    align-items: center;
+    gap: 0;
+    background: var(--card);
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    border-top: none;
+  }
+  .match-row:last-child { border-radius: 0 0 4px 4px; }
 
-  .teams-row { flex:1; display:flex; align-items:center; gap:10px; justify-content:center; min-width:180px; }
-  .team-name { font-size:13px; font-weight:500; color:#fff; flex:1; }
-  .team-name.right { text-align:right; }
-  .vs-chip { font-size:11px; color:var(--muted); background:var(--bg2); border:1px solid var(--border); border-radius:3px; padding:2px 8px; flex-shrink:0; }
-  .score-chip { font-family:var(--font-display); font-size:1.1rem; letter-spacing:2px; color:var(--pink-light); background:var(--bg2); border:1px solid var(--border); border-radius:3px; padding:2px 10px; flex-shrink:0; }
-  .orario-lbl { font-size:11px; color:var(--muted); letter-spacing:1px; white-space:nowrap; flex-shrink:0; }
+  .campo-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 500; letter-spacing: 1px;
+    border-radius: 99px; padding: 3px 10px; white-space: nowrap;
+  }
+  .campo-r { background: rgba(232,64,138,0.1); color: #f06faa; border: 1px solid #4d1a32; }
+  .campo-b { background: rgba(111,144,232,0.1); color: #6fb0e8; border: 1px solid #1a2868; }
+  .campo-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .campo-dot-r { background: #e8408a; }
+  .campo-dot-b { background: #6f90e8; }
+
+  .teams-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; padding: 0 14px;
+  }
+  .team-name { font-size: 13px; font-weight: 500; color: #fff; flex: 1; }
+  .team-name.right { text-align: right; }
+  .vs-chip { font-size: 11px; color: var(--muted); background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; padding: 2px 8px; flex-shrink: 0; }
+  .score-chip { font-family: var(--font-display); font-size: 1.1rem; letter-spacing: 2px; color: var(--pink-light); background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; padding: 2px 10px; flex-shrink: 0; }
+  .orario-lbl { font-size: 11px; color: var(--muted); letter-spacing: 1px; white-space: nowrap; flex-shrink: 0; }
 
   /* LOADING */
   .loading-msg { text-align:center; padding:3rem; color:var(--muted); font-size:13px; letter-spacing:2px; text-transform:uppercase; }
@@ -193,8 +218,8 @@
     nav { padding:0 1rem; }
     .section { padding:3.5rem 1.2rem; }
     .squadre-grid { grid-template-columns:1fr; }
-    .match-body { flex-wrap:wrap; }
-    .teams-row { min-width:100%; order:1; }
+    .match-row { grid-template-columns: 100px 1fr auto; }
+    .teams-row { padding: 0 8px; }
   }
 </style>
 </head>
@@ -394,8 +419,8 @@ const SPREADSHEET_ID = '14aBgW2ReFiRQNOEPJFG2rgApzQL9QOQvrx0eVfsmuYc';
 const API_KEY        = 'AIzaSyBVXYZt6Q-JgWHqOD5Uxw2yBz7nQvrI_Xg';
 
 const GIRONE_CFG = [
-  { name:'Traiano', label:'GIRONE TRAIANO', symId:'sym-traiano', badgeCls:'badge-traiano', ptsCls:'pts-traiano', color:'#f06faa', headCls:'girone-traiano' },
-  { name:'Arechi',  label:'GIRONE ARECHI',  symId:'sym-arechi',  badgeCls:'badge-arechi',  ptsCls:'pts-arechi',  color:'#a09ae8', headCls:'girone-arechi'  },
+  { name:'Traiano', label:'GIRONE TRAIANO', symId:'sym-traiano', dotCls:'girone-dot-t', headerCls:'gg-traiano', ptsCls:'pts-traiano', color:'#f06faa', headCls:'girone-traiano' },
+  { name:'Arechi',  label:'GIRONE ARECHI',  symId:'sym-arechi',  dotCls:'girone-dot-a', headerCls:'gg-arechi',  ptsCls:'pts-arechi',  color:'#a09ae8', headCls:'girone-arechi'  },
 ];
 
 const GIORNATE_LABELS = ['I. Giornata','II. Giornata','III. Giornata'];
@@ -423,7 +448,6 @@ const colori = [
 let squadreData = [];
 let gironiData  = {};
 
-// Converte numero seriale Google Sheets in stringa "d/m/yy"
 function serialToDateStr(n) {
   const d = new Date(1899, 11, 30);
   d.setDate(d.getDate() + Math.floor(n));
@@ -431,7 +455,6 @@ function serialToDateStr(n) {
 }
 
 async function fetchSheet(sheetName) {
-  // Richiede sia userEnteredValue che formattedValue
   const fields = 'sheets.data.rowData.values(userEnteredValue,formattedValue)';
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}`
     + `?ranges=${encodeURIComponent(sheetName)}`
@@ -447,27 +470,22 @@ function parseGirone(rows) {
   const partite = [];
   let giornata = '';
 
-  // Legge la cella: preferisce userEnteredValue,
-  // usa formattedValue come fallback per stringhe vuote,
-  // converte numeri seriali data in stringa leggibile.
   const val = (cells, i) => {
     const c = cells[i]; if (!c) return '';
     const fmt = (c.formattedValue || '').trim();
     const v = c.userEnteredValue;
-    if (!v) return fmt; // nessun valore inserito → usa formattedValue
-    // Numero seriale data (non ha stringValue ma ha numberValue)
+    if (!v) return fmt;
     if (v.numberValue !== undefined && v.stringValue === undefined) {
       return serialToDateStr(v.numberValue);
     }
     const str = (v.stringValue ?? v.numberValue?.toString() ?? '').trim();
-    return str || fmt; // se stringValue è vuoto usa formattedValue
+    return str || fmt;
   };
 
   for (let r = 0; r < rows.length; r++) {
     const cells = rows[r].values || [];
     const a = val(cells, 0); if (!a) continue;
     if (/giornata/i.test(a)) { giornata = a; continue; }
-    // Salta la riga header (contiene "Data" nella colonna 2)
     if (/^data$/i.test(val(cells, 2))) continue;
     const sq2 = val(cells, 1); if (!sq2) continue;
     partite.push({
@@ -498,7 +516,6 @@ function parseGirone(rows) {
   return { partite, squadre };
 }
 
-/* parse data "d/m/yy" o "d/m" → { day, month, weekday, key } */
 function parseData(raw) {
   if (!raw) return null;
   const p = raw.split('/');
@@ -526,25 +543,35 @@ function buildCalendario() {
     data.partite.forEach(p => allPartite.push({ ...p, cfg }));
   });
 
-  // Raggruppa per data mantenendo l'ordine cronologico
+  // Raggruppa per data → per girone
   const giorni = {};
   const ordineGiorni = [];
+
   allPartite.forEach(p => {
     const d = parseData(p.data);
-    const key = d ? d.key : '__nodate__';
-    if (!giorni[key]) { giorni[key] = { info: d, partite: [] }; ordineGiorni.push(key); }
-    giorni[key].partite.push(p);
+    const dateKey = d ? d.key : '__nodate__';
+    if (!giorni[dateKey]) {
+      giorni[dateKey] = { info: d, gironi: {}, order: [] };
+      ordineGiorni.push(dateKey);
+    }
+    const gName = p.cfg.name;
+    if (!giorni[dateKey].gironi[gName]) {
+      giorni[dateKey].gironi[gName] = { cfg: p.cfg, partite: [] };
+      giorni[dateKey].order.push(gName);
+    }
+    giorni[dateKey].gironi[gName].partite.push(p);
   });
 
   const keysUnique = [...new Set(ordineGiorni)];
 
-  keysUnique.forEach(key => {
-    const gruppo = giorni[key];
-    const info   = gruppo.info;
+  keysUnique.forEach(dateKey => {
+    const giorno = giorni[dateKey];
+    const info   = giorno.info;
 
     const block = document.createElement('div');
     block.className = 'day-block';
 
+    // Header giorno
     const header = document.createElement('div');
     header.className = 'day-header';
     if (info) {
@@ -553,43 +580,57 @@ function buildCalendario() {
           <div class="day-num">${info.day}</div>
           <div class="day-month">${info.month}</div>
         </div>
-        <div class="day-weekday">${info.weekday}</div>
-        <div class="day-hr"></div>`;
+        <div class="day-weekday">${info.weekday}</div>`;
     } else {
-      header.innerHTML = `<div class="day-weekday" style="color:var(--muted)">Data da definire</div><div class="day-hr"></div>`;
+      header.innerHTML = `<div class="day-weekday" style="color:var(--muted)">Data da definire</div>`;
     }
     block.appendChild(header);
 
-    gruppo.partite.forEach(p => {
-      const cfg = p.cfg;
-      const campoCls = p.campo === 'ROSSO' ? 'campo-rosso-bg' : 'campo-blu-bg';
-      const campoLbl = p.campo === 'ROSSO' ? 'Campo Rosso' : 'Campo Blu';
-      const midHTML  = p.result
-        ? `<span class="score-chip">${p.result}</span>`
-        : `<span class="vs-chip">vs</span>`;
+    // Gironi del giorno
+    giorno.order.forEach(gName => {
+      const gruppo = giorno.gironi[gName];
+      const cfg    = gruppo.cfg;
 
-      const card = document.createElement('div');
-      card.className = 'match-card';
-      card.innerHTML = `
-        <div class="campo-bar ${campoCls}">
-          <div class="campo-dot"></div>
-          <span class="campo-lbl">${campoLbl}</span>
-        </div>
-        <div class="match-body">
-          <div class="girone-badge ${cfg.badgeCls}">
-            <svg class="badge-icon" aria-hidden="true" style="color:${cfg.color}">
-              <use href="#${cfg.symId}"/>
-            </svg>
-            ${cfg.name} · ${gironataShort(p.giornata)}
+      const gGroup = document.createElement('div');
+      gGroup.className = 'girone-group';
+
+      // Etichetta girone + giornata
+      const gHead = document.createElement('div');
+      gHead.className = `girone-group-header ${cfg.headerCls}`;
+      gHead.innerHTML = `
+        <div class="girone-dot ${cfg.dotCls}"></div>
+        ${cfg.label} · ${gironataShort(gruppo.partite[0]?.giornata)}`;
+      gGroup.appendChild(gHead);
+
+      // Righe partita — singola riga per match
+      gruppo.partite.forEach(p => {
+        const isRosso  = p.campo === 'ROSSO';
+        const campoCls = isRosso ? 'campo-r' : 'campo-b';
+        const dotCls   = isRosso ? 'campo-dot-r' : 'campo-dot-b';
+        const campoLbl = isRosso ? 'Campo Rosso' : 'Campo Blu';
+        const midHTML  = p.result
+          ? `<span class="score-chip">${p.result}</span>`
+          : `<span class="vs-chip">vs</span>`;
+
+        const row = document.createElement('div');
+        row.className = 'match-row';
+        row.innerHTML = `
+          <div>
+            <span class="campo-pill ${campoCls}">
+              <span class="campo-dot ${dotCls}"></span>
+              ${campoLbl}
+            </span>
           </div>
           <div class="teams-row">
             <span class="team-name right">${p.sq1}</span>
             ${midHTML}
             <span class="team-name">${p.sq2}</span>
           </div>
-          <div class="orario-lbl">${p.orario}</div>
-        </div>`;
-      block.appendChild(card);
+          <div class="orario-lbl">${p.orario}</div>`;
+        gGroup.appendChild(row);
+      });
+
+      block.appendChild(gGroup);
     });
 
     container.appendChild(block);
