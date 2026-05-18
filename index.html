@@ -24,15 +24,13 @@
   }
   html { scroll-behavior: smooth; }
   body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.6; overflow-x: hidden; }
-  .court-bg {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03;
-    background-image: linear-gradient(90deg, #e8408a 1px, transparent 1px), linear-gradient(0deg, #e8408a 1px, transparent 1px);
-    background-size: 48px 48px;
-  }
+  .court-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03; background-image: linear-gradient(90deg, #e8408a 1px, transparent 1px), linear-gradient(0deg, #e8408a 1px, transparent 1px); background-size: 48px 48px; }
+
+  /* HERO */
   .hero { position: relative; z-index: 1; min-height: 92vh; display: flex; flex-direction: column; justify-content: center; padding: 6rem 2rem 4rem; overflow: hidden; }
   .hero::before { content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 800px; height: 600px; background: radial-gradient(ellipse at 50% 30%, rgba(232,64,138,0.18) 0%, transparent 65%); pointer-events: none; }
   .hero-inner { max-width: 860px; margin: 0 auto; width: 100%; }
-  .hero-eyebrow { font-family: var(--font-body); font-size: 11px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--pink); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 12px; }
+  .hero-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--pink); margin-bottom: 1.2rem; display: flex; align-items: center; gap: 12px; }
   .hero-eyebrow::before { content: ''; display: inline-block; width: 32px; height: 1px; background: var(--pink); }
   .hero h1 { font-family: var(--font-display); font-size: clamp(3.8rem, 12vw, 9rem); line-height: 0.88; letter-spacing: 2px; color: #fff; margin-bottom: 0.6rem; }
   .hero h1 .accent { color: var(--pink-light); }
@@ -42,10 +40,11 @@
   .hstat-n { font-family: var(--font-display); font-size: 3rem; letter-spacing: 2px; color: var(--pink-light); line-height: 1; }
   .hstat-l { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
   .hero-social { display: flex; gap: 10px; }
-  .btn-social { display: inline-flex; align-items: center; gap: 7px; background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: var(--font-body); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 9px 18px; border-radius: 3px; text-decoration: none; transition: all 0.2s; }
+  .btn-social { display: inline-flex; align-items: center; gap: 7px; background: transparent; border: 1px solid var(--border); color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 9px 18px; border-radius: 3px; text-decoration: none; transition: all 0.2s; }
   .btn-social:hover { border-color: var(--pink); color: var(--pink-light); }
-  .hero-ball { position: absolute; right: -80px; top: 50%; transform: translateY(-60%); font-size: 28rem; opacity: 0.03; pointer-events: none; user-select: none; line-height: 1; }
+  .hero-ball { position: absolute; right: -80px; top: 50%; transform: translateY(-60%); font-size: 28rem; opacity: 0.03; pointer-events: none; user-select: none; }
 
+  /* NAV */
   nav { position: sticky; top: 0; z-index: 200; background: rgba(12,8,10,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; padding: 0 2rem; }
   .nav-links { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
   .nav-links::-webkit-scrollbar { display: none; }
@@ -54,6 +53,7 @@
   .nav-links a.s2 { color: #f0a0c8; border-bottom-color: #f0a0c8; }
   .nav-links a:hover { opacity: 0.7; }
 
+  /* SECTIONS */
   .section { position: relative; z-index: 1; padding: 5rem 2rem; }
   .section-inner { max-width: 1100px; margin: 0 auto; }
   .sec-head { margin-bottom: 3rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
@@ -62,7 +62,7 @@
   .sec-sub { font-size: 13px; color: var(--muted); margin-top: 0.5rem; }
   .section:nth-child(even) { background: var(--bg2); }
 
-  /* CALENDARIO */
+  /* CALENDARIO EVENTI */
   .calendario-list { display: flex; flex-direction: column; gap: 10px; }
   .cal-item { background: var(--card); border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; gap: 1.5rem; padding: 1.2rem 1.5rem; transition: border-color 0.2s; }
   .cal-item:hover { border-color: var(--pink-mid); }
@@ -75,11 +75,60 @@
   .cal-titolo { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 2px; color: #fff; line-height: 1.1; }
   .cal-desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
   .cal-status { font-size: 12px; color: var(--pink-light); background: rgba(232,64,138,0.1); border: 1px solid var(--pink-mid); padding: 5px 12px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; }
-  @media (max-width: 500px) { .cal-item { flex-wrap: wrap; gap: 0.8rem; } .cal-status { font-size: 11px; } }
+  @media (max-width: 500px) { .cal-item { flex-wrap: wrap; gap: 0.8rem; } }
+
+  /* GIRONI – CLASSIFICA */
+  .gironi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 700px) { .gironi-grid { grid-template-columns: 1fr; } }
+  .girone-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .girone-traiano { border-color: #4d1a32; }
+  .girone-arechi  { border-color: #2a1a4d; }
+  .girone-head { padding: 14px 18px; border-bottom: 1px solid var(--border); }
+  .girone-traiano .girone-head { background: rgba(232,64,138,0.06); border-bottom-color: #4d1a32; }
+  .girone-arechi  .girone-head { background: rgba(160,111,232,0.06); border-bottom-color: #2a1a4d; }
+  .girone-label { font-family: var(--font-display); font-size: 1.5rem; letter-spacing: 3px; }
+  .girone-traiano .girone-label { color: var(--pink-light); }
+  .girone-arechi  .girone-label { color: #a06fe8; }
+  .girone-sub { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+  .cl-table { width: 100%; border-collapse: collapse; }
+  .cl-table th { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 8px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  .cl-table th.c { text-align: center; }
+  .cl-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid rgba(43,30,36,0.4); }
+  .cl-table td.c { text-align: center; color: var(--muted); font-size: 12px; }
+  .cl-table tr:last-child td { border-bottom: none; }
+  .cl-table tr:hover td { background: rgba(232,64,138,0.03); }
+  .pos-num { font-family: var(--font-display); font-size: 1.1rem; color: var(--muted); }
+  .pos-num.gold { color: var(--gold); }
+  .sq-nm { font-weight: 500; color: #fff; }
+  .pts-val { font-family: var(--font-display); font-size: 1.1rem; }
+
+  /* GIORNATE PARTITE */
+  .giornate-wrap { display: flex; flex-direction: column; gap: 2.5rem; margin-top: 3rem; }
+  .giornata-header { display: flex; align-items: center; gap: 14px; margin-bottom: 1rem; }
+  .giornata-num { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 3px; color: var(--pink); }
+  .giornata-date { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .giornata-line { flex: 1; height: 1px; background: var(--border); }
+  .partite-list { display: flex; flex-direction: column; gap: 8px; }
+  .partita-row { background: var(--card); border: 1px solid var(--border); border-radius: 4px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 12px 16px; gap: 8px; transition: border-color 0.2s; }
+  .partita-row:hover { border-color: var(--pink-mid); }
+  .partita-row.played { border-color: rgba(232,64,138,0.25); }
+  .sq-left  { font-family: var(--font-display); font-size: 1rem; letter-spacing: 1.5px; color: #fff; text-align: right; line-height: 1.2; }
+  .sq-right { font-family: var(--font-display); font-size: 1rem; letter-spacing: 1.5px; color: #fff; text-align: left;  line-height: 1.2; }
+  .partita-mid { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 110px; flex-shrink: 0; }
+  .p-score { font-family: var(--font-display); font-size: 1.4rem; color: var(--pink-light); letter-spacing: 2px; }
+  .p-score.empty { color: var(--muted); font-size: 1rem; letter-spacing: 1px; }
+  .p-orario { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .p-badges { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .campo-badge { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; }
+  .campo-ROSSO { color: #e87070; background: rgba(232,112,112,0.1); border: 1px solid rgba(232,112,112,0.2); }
+  .campo-BLU   { color: #6fb0e8; background: rgba(111,176,232,0.1); border: 1px solid rgba(111,176,232,0.2); }
+  .girone-tag { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 2px; }
+  .tag-Traiano { color: var(--pink-light); background: rgba(240,111,170,0.1); border: 1px solid rgba(240,111,170,0.2); }
+  .tag-Arechi  { color: #a06fe8; background: rgba(160,111,232,0.1); border: 1px solid rgba(160,111,232,0.2); }
 
   /* SQUADRE */
   .squadre-search { margin-bottom: 2rem; }
-  .squadre-search input { background: var(--card); border: 1px solid var(--border); color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 10px 16px; border-radius: 3px; width: 100%; max-width: 360px; outline: none; transition: border-color 0.2s; }
+  .squadre-search input { background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 13px; padding: 10px 16px; border-radius: 3px; width: 100%; max-width: 360px; outline: none; transition: border-color 0.2s; }
   .squadre-search input::placeholder { color: var(--muted); }
   .squadre-search input:focus { border-color: var(--pink); }
   .squadre-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
@@ -89,7 +138,6 @@
   .squadra-head { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
   .squadra-head h3 { font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 2px; }
   .squadra-badge { font-size: 10px; padding: 3px 9px; border-radius: 2px; flex-shrink: 0; margin-left: 8px; }
-  /* Riga capitana */
   .squadra-cap { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
   .cap-icon { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); background: rgba(245,200,66,0.1); padding: 2px 7px; border-radius: 2px; flex-shrink: 0; }
   .cap-name { color: var(--text); font-weight: 500; }
@@ -141,6 +189,9 @@
     nav { padding: 0 1rem; }
     .section { padding: 3.5rem 1.2rem; }
     .squadre-grid { grid-template-columns: 1fr; }
+    .partita-row { grid-template-columns: 1fr; }
+    .sq-left { text-align: left; }
+    .partita-mid { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; min-width: unset; }
   }
 </style>
 </head>
@@ -174,13 +225,14 @@
 <nav>
   <div class="nav-links">
     <a href="#calendario" class="s1" onclick="setActive(this)">Calendario</a>
-    <a href="#squadre" class="s2" onclick="setActive(this)">Squadre</a>
-    <a href="#storia" class="s1" onclick="setActive(this)">Storico</a>
-    <a href="#dove" class="s2" onclick="setActive(this)">Dove giochiamo</a>
+    <a href="#gironi"     class="s2" onclick="setActive(this)">Gironi</a>
+    <a href="#squadre"   class="s1" onclick="setActive(this)">Squadre</a>
+    <a href="#storia"    class="s2" onclick="setActive(this)">Storico</a>
+    <a href="#dove"      class="s1" onclick="setActive(this)">Dove giochiamo</a>
   </div>
 </nav>
 
-<!-- CALENDARIO -->
+<!-- CALENDARIO EVENTI -->
 <div class="section" id="calendario">
   <div class="section-inner">
     <div class="sec-head fade-in">
@@ -190,15 +242,46 @@
     </div>
     <div class="calendario-list">
       <div class="cal-item cal-highlight">
-        <div class="cal-date"><div class="cal-day">18</div><div class="cal-month">MAG · LUN</div></div>
+        <div class="cal-date"><div class="cal-day">28</div><div class="cal-month">MAG · GIO</div></div>
         <div class="cal-body">
-          <div class="cal-ora">ore 18:00</div>
-          <div class="cal-titolo">Sorteggio Gironi</div>
-          <div class="cal-desc">Sorteggio ufficiale dei gironi della II Edizione Women</div>
+          <div class="cal-ora">ore 18:00 · 19:30</div>
+          <div class="cal-titolo">I Giornata</div>
+          <div class="cal-desc">Prima giornata della fase a gironi · Campo Rosso</div>
         </div>
         <div class="cal-status">Prossimo</div>
       </div>
+      <div class="cal-item">
+        <div class="cal-date"><div class="cal-day">3</div><div class="cal-month">GIU · MER</div></div>
+        <div class="cal-body">
+          <div class="cal-ora">ore 19:30 · 21:00</div>
+          <div class="cal-titolo">II Giornata</div>
+          <div class="cal-desc">Seconda giornata della fase a gironi · Campo Blu</div>
+        </div>
+      </div>
+      <div class="cal-item">
+        <div class="cal-date"><div class="cal-day">8–11</div><div class="cal-month">GIU</div></div>
+        <div class="cal-body">
+          <div class="cal-ora">ore 18:00 · 21:00</div>
+          <div class="cal-titolo">III Giornata</div>
+          <div class="cal-desc">Terza e ultima giornata della fase a gironi · Campo Blu</div>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
+
+<!-- GIRONI -->
+<div class="section" id="gironi">
+  <div class="section-inner">
+    <div class="sec-head fade-in">
+      <div class="sec-label">Fase a gironi · II Edizione 2026</div>
+      <div class="sec-title">GIRONI &amp; PARTITE</div>
+      <div class="sec-sub" id="gironi-sub">Caricamento gironi…</div>
+    </div>
+    <div id="gironi-container">
+      <div class="loading-msg">Caricamento<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
+    </div>
+    <div class="giornate-wrap" id="giornate-container"></div>
   </div>
 </div>
 
@@ -214,12 +297,7 @@
       <input type="text" id="search-input" placeholder="Cerca squadra o giocatrice…" oninput="filterSquadre(this.value)">
     </div>
     <div id="squadre-container">
-      <div class="loading-msg">
-        Caricamento squadre
-        <span class="loading-dot">.</span>
-        <span class="loading-dot">.</span>
-        <span class="loading-dot">.</span>
-      </div>
+      <div class="loading-msg">Caricamento squadre<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
     </div>
   </div>
 </div>
@@ -300,10 +378,16 @@
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const SPREADSHEET_ID = '14aBgW2ReFiRQNOEPJFG2rgApzQL9QOQvrx0eVfsmuYc';
-const SHEET_NAME     = 'Rose';
 const API_KEY        = 'AIzaSyBVXYZt6Q-JgWHqOD5Uxw2yBz7nQvrI_Xg';
 
-// ─── COLORI CARD SQUADRE (tonalità rosa/viola) ────────────────────────────────
+const GIRONE_CFG = [
+  { name: 'Traiano', label: 'GIRONE TRAIANO', cls: 'girone-traiano', tagCls: 'tag-Traiano', color: '#f06faa' },
+  { name: 'Arechi',  label: 'GIRONE ARECHI',  cls: 'girone-arechi',  tagCls: 'tag-Arechi',  color: '#a06fe8' },
+];
+
+const GIORNATE_LABELS = ['I. Giornata', 'II. Giornata', 'III. Giornata'];
+const MESI = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+
 const colori = [
   { h: '#7a1a4a', b: '#3d0d24', t: '#f06faa', dim: 'rgba(240,111,170,0.12)' },
   { h: '#6b1a5a', b: '#3d0d32', t: '#e870d0', dim: 'rgba(232,112,208,0.12)' },
@@ -321,111 +405,241 @@ const colori = [
   { h: '#1a6b3a', b: '#0d3d1e', t: '#6fe8a0', dim: 'rgba(111,232,160,0.12)' },
 ];
 
-// ─── STATO ────────────────────────────────────────────────────────────────────
 let squadreData = [];
+let gironiData  = {};
 
-// ─── FETCH SHEETS API v4 ──────────────────────────────────────────────────────
-async function loadSquadre() {
-  try {
-    const fields = 'sheets.data.rowData.values(userEnteredValue)';
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}`
-      + `?ranges=${encodeURIComponent(SHEET_NAME)}`
-      + `&fields=${encodeURIComponent(fields)}`
-      + `&key=${API_KEY}`;
-
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-
-    const rows = json.sheets[0].data[0].rowData || [];
-    squadreData = parseRows(rows);
-    buildSquadre(squadreData);
-  } catch (err) {
-    document.getElementById('squadre-container').innerHTML =
-      `<div class="loading-msg" style="color:#d94f4f;">
-        Errore nel caricamento dati.<br>
-        <span style="font-size:11px;">${err.message}</span>
-      </div>`;
-    console.error('Sheets API error:', err);
-  }
+// ─── FETCH ────────────────────────────────────────────────────────────────────
+async function fetchSheet(sheetName) {
+  const fields = 'sheets.data.rowData.values(userEnteredValue)';
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}`
+    + `?ranges=${encodeURIComponent(sheetName)}`
+    + `&fields=${encodeURIComponent(fields)}`
+    + `&key=${API_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' · ' + sheetName);
+  const json = await res.json();
+  return json.sheets[0].data[0].rowData || [];
 }
 
-// ─── PARSING RIGHE API (con capitane via marker (K)) ──────────────────────────
-const KRegex = /\s*\(\s*[Kk]\s*\)/g;
+// ─── PARSE GIRONE ─────────────────────────────────────────────────────────────
+function parseGirone(rows) {
+  const partite = [];
+  let giornata = '';
+  const val = (cells, i) => {
+    const c = cells[i];
+    if (!c) return '';
+    const v = c.userEnteredValue;
+    if (!v) return '';
+    return (v.stringValue ?? v.numberValue?.toString() ?? '').trim();
+  };
 
-function parseRows(rows) {
-  if (!rows.length) return [];
-
-  // riga 0 = intestazioni (nomi squadre)
-  const headerRow = rows[0].values || [];
-  const squadre = [];
-  const colIndices = [];
-
-  headerRow.forEach((cell, i) => {
-    const nome = (cell.userEnteredValue?.stringValue || '').trim();
-    if (nome) {
-      squadre.push({ nome, capitana: '', giocatrici: [] });
-      colIndices.push(i);
-    }
-  });
-
-  // righe 1+ = giocatrici
-  for (let r = 1; r < rows.length; r++) {
+  for (let r = 0; r < rows.length; r++) {
     const cells = rows[r].values || [];
-    colIndices.forEach((ci, si) => {
-      const cell = cells[ci];
-      if (!cell) return;
-
-      const raw = (cell.userEnteredValue?.stringValue || '').trim();
-      if (!raw) return;
-
-      const isCapitana = KRegex.test(raw);
-      KRegex.lastIndex = 0;
-      const nome = raw.replace(/\s*\(\s*[Kk]\s*\)/g, '').trim();
-      if (!nome) return;
-
-      if (isCapitana && !squadre[si].capitana) {
-        squadre[si].capitana = nome;
-      } else {
-        squadre[si].giocatrici.push(nome);
-      }
+    const a = val(cells, 0);
+    if (!a) continue;
+    if (/giornata/i.test(a)) { giornata = a; continue; }
+    const sq2 = val(cells, 1);
+    if (!sq2) continue;
+    partite.push({
+      giornata,
+      sq1:    a,
+      sq2,
+      data:   val(cells, 2),
+      campo:  val(cells, 3).toUpperCase(),
+      orario: val(cells, 4),
+      result: val(cells, 5),
+      p1:     val(cells, 6),
+      p2:     val(cells, 7),
     });
   }
 
+  // Classifica
+  const map = {};
+  const ensure = (n) => { if (!map[n]) map[n] = { nome: n, pt: 0, g: 0, v: 0, p: 0, par: 0 }; };
+  partite.forEach(p => {
+    ensure(p.sq1); ensure(p.sq2);
+    if (p.p1 !== '' && p.p2 !== '') {
+      const pt1 = parseInt(p.p1) || 0, pt2 = parseInt(p.p2) || 0;
+      map[p.sq1].pt += pt1; map[p.sq2].pt += pt2;
+      map[p.sq1].g++;       map[p.sq2].g++;
+      if (pt1 > pt2)      { map[p.sq1].v++; map[p.sq2].p++; }
+      else if (pt2 > pt1) { map[p.sq2].v++; map[p.sq1].p++; }
+      else                { map[p.sq1].par++; map[p.sq2].par++; }
+    }
+  });
+  const squadre = Object.values(map).sort((a, b) => b.pt - a.pt || b.v - a.v);
+  return { partite, squadre };
+}
+
+// ─── FORMAT DATA ──────────────────────────────────────────────────────────────
+function fmtData(raw) {
+  if (!raw) return '';
+  const p = raw.split('/');
+  if (p.length < 2) return raw;
+  return `${p[0].padStart(2,'0')} ${MESI[(parseInt(p[1])||1)-1]}`;
+}
+
+// ─── BUILD GIRONI ─────────────────────────────────────────────────────────────
+function buildGironi() {
+  const container   = document.getElementById('gironi-container');
+  const giornateEl  = document.getElementById('giornate-container');
+  container.innerHTML  = '';
+  giornateEl.innerHTML = '';
+
+  // — Classifiche affiancate —
+  const grid = document.createElement('div');
+  grid.className = 'gironi-grid';
+  container.appendChild(grid);
+
+  GIRONE_CFG.forEach(cfg => {
+    const data = gironiData[cfg.name];
+    if (!data) return;
+    const tbody = data.squadre.map((sq, i) => `
+      <tr>
+        <td><span class="pos-num ${i===0?'gold':''}">${i+1}</span></td>
+        <td class="sq-nm">${sq.nome}</td>
+        <td class="c">${sq.g}</td>
+        <td class="c">${sq.v}</td>
+        <td class="c">${sq.p}</td>
+        <td class="c"><span class="pts-val" style="color:${cfg.color}">${sq.pt}</span></td>
+      </tr>`).join('');
+    const card = document.createElement('div');
+    card.className = `girone-card ${cfg.cls}`;
+    card.innerHTML = `
+      <div class="girone-head">
+        <div class="girone-label">${cfg.label}</div>
+        <div class="girone-sub">${data.squadre.length} squadre</div>
+      </div>
+      <table class="cl-table">
+        <thead><tr>
+          <th style="width:28px">#</th><th>Squadra</th>
+          <th class="c">G</th><th class="c">V</th><th class="c">P</th><th class="c">Pt</th>
+        </tr></thead>
+        <tbody>${tbody}</tbody>
+      </table>`;
+    grid.appendChild(card);
+  });
+
+  // — Calendario partite per giornata —
+  GIORNATE_LABELS.forEach((gName, gi) => {
+    const numLabel = ['I','II','III'][gi];
+    let allDates = [];
+    let partiteHTML = '';
+
+    GIRONE_CFG.forEach(cfg => {
+      const data = gironiData[cfg.name];
+      if (!data) return;
+      data.partite.filter(p => p.giornata === gName).forEach(p => {
+        const df = fmtData(p.data);
+        if (df && !allDates.includes(df)) allDates.push(df);
+        const hasRes = !!p.result;
+        const campoCls = p.campo === 'ROSSO' ? 'campo-ROSSO' : 'campo-BLU';
+        partiteHTML += `
+          <div class="partita-row ${hasRes ? 'played' : ''}">
+            <div class="sq-left">${p.sq1}</div>
+            <div class="partita-mid">
+              <div class="p-score ${hasRes ? '' : 'empty'}">${hasRes ? p.result : 'vs'}</div>
+              <div class="p-orario">${p.orario}</div>
+              <div class="p-badges">
+                <span class="campo-badge ${campoCls}">${p.campo}</span>
+                <span class="girone-tag ${cfg.tagCls}">${cfg.name}</span>
+              </div>
+            </div>
+            <div class="sq-right">${p.sq2}</div>
+          </div>`;
+      });
+    });
+
+    if (!partiteHTML) return;
+
+    const block = document.createElement('div');
+    block.innerHTML = `
+      <div class="giornata-header">
+        <div class="giornata-num">${numLabel} GIORNATA</div>
+        ${allDates.length ? `<div class="giornata-date">${allDates.join(' · ')}</div>` : ''}
+        <div class="giornata-line"></div>
+      </div>
+      <div class="partite-list">${partiteHTML}</div>`;
+    giornateEl.appendChild(block);
+  });
+
+  const totSquadre = GIRONE_CFG.reduce((s, cfg) => s + (gironiData[cfg.name]?.squadre.length || 0), 0);
+  document.getElementById('gironi-sub').textContent =
+    `${totSquadre} squadre · Girone Traiano & Girone Arechi`;
+}
+
+// ─── LOAD GIRONI ─────────────────────────────────────────────────────────────
+async function loadGironi() {
+  try {
+    await Promise.all(GIRONE_CFG.map(async cfg => {
+      const rows = await fetchSheet(cfg.name);
+      gironiData[cfg.name] = parseGirone(rows);
+    }));
+    buildGironi();
+  } catch (err) {
+    document.getElementById('gironi-container').innerHTML =
+      `<div class="loading-msg" style="color:#d94f4f;">Errore caricamento gironi.<br><span style="font-size:11px;">${err.message}</span></div>`;
+    console.error(err);
+  }
+}
+
+// ─── LOAD SQUADRE ─────────────────────────────────────────────────────────────
+const KRegex = /\s*\(\s*[Kk]\s*\)/g;
+
+async function loadSquadre() {
+  try {
+    const rows = await fetchSheet('Rose');
+    squadreData = parseRose(rows);
+    buildSquadre(squadreData);
+  } catch (err) {
+    document.getElementById('squadre-container').innerHTML =
+      `<div class="loading-msg" style="color:#d94f4f;">Errore caricamento squadre.<br><span style="font-size:11px;">${err.message}</span></div>`;
+  }
+}
+
+function parseRose(rows) {
+  if (!rows.length) return [];
+  const header = rows[0].values || [];
+  const squadre = [], cols = [];
+  header.forEach((cell, i) => {
+    const n = (cell.userEnteredValue?.stringValue || '').trim();
+    if (n) { squadre.push({ nome: n, capitana: '', giocatrici: [] }); cols.push(i); }
+  });
+  for (let r = 1; r < rows.length; r++) {
+    const cells = rows[r].values || [];
+    cols.forEach((ci, si) => {
+      const cell = cells[ci]; if (!cell) return;
+      const raw = (cell.userEnteredValue?.stringValue || '').trim(); if (!raw) return;
+      const isCap = KRegex.test(raw); KRegex.lastIndex = 0;
+      const nome = raw.replace(/\s*\(\s*[Kk]\s*\)/g, '').trim(); if (!nome) return;
+      if (isCap && !squadre[si].capitana) squadre[si].capitana = nome;
+      else squadre[si].giocatrici.push(nome);
+    });
+  }
   return squadre;
 }
 
-// ─── BUILD UI ─────────────────────────────────────────────────────────────────
 function buildSquadre(squadre) {
   const container = document.getElementById('squadre-container');
-  if (!container) return;
-
   const grid = document.createElement('div');
   grid.className = 'squadre-grid';
   container.innerHTML = '';
   container.appendChild(grid);
-
-  let totGiocatrici = 0;
-
+  let tot = 0;
   squadre.forEach((s, idx) => {
     const c = colori[idx % colori.length];
     const totCard = (s.capitana ? 1 : 0) + s.giocatrici.length;
-    totGiocatrici += totCard;
-
-    const playersHTML = s.giocatrici.map(nome => `
+    tot += totCard;
+    const playersHTML = s.giocatrici.map(n => `
       <div class="player-row">
         <div class="dot" style="background:${c.t};opacity:0.5"></div>
-        <span class="player-name">${nome}</span>
-      </div>
-    `).join('');
-
+        <span class="player-name">${n}</span>
+      </div>`).join('');
     const capHTML = s.capitana
-      ? `<div class="squadra-cap" style="background:${c.dim};border-bottom:1px solid ${c.h}20;">
+      ? `<div class="squadra-cap" style="background:${c.dim};border-bottom:1px solid ${c.h}30;">
            <span class="cap-icon">CAP</span>
            <span class="cap-name">${s.capitana}</span>
-         </div>`
-      : '';
-
+         </div>` : '';
     const card = document.createElement('div');
     card.className = 'squadra-card';
     card.dataset.idx = idx;
@@ -437,29 +651,24 @@ function buildSquadre(squadre) {
       </div>
       ${capHTML}
       <div class="squadra-players" id="players-${idx}">${playersHTML}</div>
-      <div class="squadra-toggle" onclick="togglePlayers(${idx})" id="toggle-${idx}" style="border-top-color:${c.h};color:${c.t};opacity:0.6;">▼ Vedi tutte le giocatrici</div>
-    `;
+      <div class="squadra-toggle" onclick="togglePlayers(${idx})" id="toggle-${idx}" style="border-top-color:${c.h};color:${c.t};opacity:0.6;">▼ Vedi tutte le giocatrici</div>`;
     grid.appendChild(card);
   });
-
   document.getElementById('stat-squadre').textContent   = squadre.length;
-  document.getElementById('stat-giocatori').textContent = totGiocatrici + '+';
+  document.getElementById('stat-giocatori').textContent = tot + '+';
   document.getElementById('squadre-sub').textContent    =
-    `${squadre.length} squadre iscritte · I gironi verranno definiti al sorteggio`;
+    `${squadre.length} squadre iscritte · Girone Traiano & Girone Arechi`;
 }
 
-// ─── RICERCA ──────────────────────────────────────────────────────────────────
 function filterSquadre(q) {
   q = q.toLowerCase().trim();
   document.querySelectorAll('.squadra-card').forEach((card, i) => {
-    const s = squadreData[i];
-    if (!s) return;
-    const matchTeam   = s.nome.toLowerCase().includes(q);
-    const matchCap    = s.capitana.toLowerCase().includes(q);
-    const matchPlayer = s.giocatrici.some(n => n.toLowerCase().includes(q));
-    const match = !q || matchTeam || matchCap || matchPlayer;
+    const s = squadreData[i]; if (!s) return;
+    const match = !q || s.nome.toLowerCase().includes(q)
+      || s.capitana.toLowerCase().includes(q)
+      || s.giocatrici.some(n => n.toLowerCase().includes(q));
     card.classList.toggle('hidden', !match);
-    if (q && (matchPlayer || matchCap) && !matchTeam) {
+    if (q && match && !s.nome.toLowerCase().includes(q)) {
       document.getElementById(`players-${i}`)?.classList.add('open');
       const tog = document.getElementById(`toggle-${i}`);
       if (tog) tog.textContent = '▲ Chiudi';
@@ -467,31 +676,27 @@ function filterSquadre(q) {
   });
 }
 
-// ─── TOGGLE ───────────────────────────────────────────────────────────────────
 function togglePlayers(idx) {
   const el  = document.getElementById(`players-${idx}`);
   const tog = document.getElementById(`toggle-${idx}`);
-  const isOpen = el.classList.contains('open');
-  el.classList.toggle('open', !isOpen);
-  tog.textContent = isOpen ? '▼ Vedi tutte le giocatrici' : '▲ Chiudi';
+  const open = el.classList.contains('open');
+  el.classList.toggle('open', !open);
+  tog.textContent = open ? '▼ Vedi tutte le giocatrici' : '▲ Chiudi';
 }
 
-// ─── NAV ──────────────────────────────────────────────────────────────────────
 function setActive(el) {
   document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
   el.classList.add('active');
 }
 
-// ─── FADE IN ──────────────────────────────────────────────────────────────────
-const fadeEls = document.querySelectorAll('.fade-in');
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-fadeEls.forEach(el => observer.observe(el));
+document.querySelectorAll('.fade-in').forEach(el =>
+  new IntersectionObserver(([e]) => { if (e.isIntersecting) el.classList.add('visible'); }, { threshold: 0.1 }).observe(el)
+);
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
+loadGironi();
 loadSquadre();
-setInterval(loadSquadre, 5 * 60 * 1000);
+setInterval(() => { loadGironi(); loadSquadre(); }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
