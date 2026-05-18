@@ -441,10 +441,16 @@ function parseGirone(rows) {
   const partite = [];
   let giornata = '';
   const val = (cells, i) => {
-    const c = cells[i]; if (!c) return '';
-    const v = c.userEnteredValue; if (!v) return '';
-    return (v.stringValue ?? v.numberValue?.toString() ?? '').trim();
-  };
+  const c = cells[i]; if (!c) return '';
+  const v = c.userEnteredValue; if (!v) return '';
+  if (v.numberValue !== undefined && v.stringValue === undefined) {
+    // Data seriale Google Sheets (giorni dal 30/12/1899)
+    const d = new Date(1899, 11, 30);
+    d.setDate(d.getDate() + Math.floor(v.numberValue));
+    return `${d.getDate()}/${d.getMonth()+1}/26`;
+  }
+  return (v.stringValue ?? v.numberValue?.toString() ?? '').trim();
+};
   for (let r = 0; r < rows.length; r++) {
     const cells = rows[r].values || [];
     const a = val(cells, 0);console.log('ROW', r, '→', cells.map(c => c?.userEnteredValue?.stringValue ?? c?.userEnteredValue?.numberValue ?? '—').join(' | ')); if (!a) continue;
