@@ -506,11 +506,16 @@ function parseGirone(rows) {
   partite.forEach(p => {
     ensure(p.sq1); ensure(p.sq2);
     if (p.p1 !== '' && p.p2 !== '') {
-      const pt1 = parseInt(p.p1)||0, pt2 = parseInt(p.p2)||0;
+      const s1 = parseInt(p.p1)||0, s2 = parseInt(p.p2)||0;
+      let pt1 = 0, pt2 = 0;
+      if (s1 === 2 && s2 === 0)      { pt1 = 3; pt2 = 0; }
+      else if (s1 === 0 && s2 === 2) { pt1 = 0; pt2 = 3; }
+      else if (s1 === 2 && s2 === 1) { pt1 = 2; pt2 = 1; }
+      else if (s1 === 1 && s2 === 2) { pt1 = 1; pt2 = 2; }
       map[p.sq1].pt += pt1; map[p.sq2].pt += pt2;
       map[p.sq1].g++;       map[p.sq2].g++;
-      if (pt1 > pt2)      { map[p.sq1].v++; map[p.sq2].p++; }
-      else if (pt2 > pt1) { map[p.sq2].v++; map[p.sq1].p++; }
+      if (s1 > s2)      { map[p.sq1].v++; map[p.sq2].p++; }
+      else if (s2 > s1) { map[p.sq2].v++; map[p.sq1].p++; }
       else                { map[p.sq1].par++; map[p.sq2].par++; }
     }
   });
