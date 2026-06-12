@@ -493,13 +493,12 @@ function parseGirone(rows) {
     const sq2 = val(cells, 1); if (!sq2) continue;
     partite.push({
       giornata, sq1: a, sq2,
-      data:  val(cells, 2),
-      campo: val(cells, 3).toUpperCase(),
-      match1: strVal(cells, 4), ris1: strVal(cells, 5),
-      match2: strVal(cells, 6), ris2: strVal(cells, 7),
-      match3: strVal(cells, 8), ris3: strVal(cells, 9),
-      p1: numVal(cells, 10),
-      p2: numVal(cells, 11),
+      data:   val(cells, 2),
+      campo:  val(cells, 3).toUpperCase(),
+      orario: strVal(cells, 4),
+      risultato: strVal(cells, 6),
+      p1: numVal(cells, 7),
+      p2: numVal(cells, 8),
     });
   }
   const map = {};
@@ -529,27 +528,23 @@ function openModal(p, cfg) {
   scoreEl.textContent = hasResult ? (p.p1 + ' \u2013 ' + p.p2) : 'vs';
   scoreEl.style.color = hasResult ? 'var(--accent-light)' : 'var(--muted)';
 
-  const matches = [
-    { label: '1\u00b0 Match', players: p.match1, ris: p.ris1 },
-    { label: '2\u00b0 Match', players: p.match2, ris: p.ris2 },
-    { label: '3\u00b0 Match', players: p.match3, ris: p.ris3 },
-  ];
-  document.getElementById('modal-matches').innerHTML = matches.filter(m => m.players).map(m => {
-    const parts = m.players.split('/');
-    const c1 = (parts[0] || '').trim();
-    const c2 = (parts[1] || '').trim();
-    const playersHTML = c2 ? (c1 + '<span class="sep"> / </span>' + c2) : c1;
-    const risHTML = m.ris
-      ? '<div class="modal-match-result">' + m.ris + '</div>'
-      : '<div class="modal-match-result empty">\u2014</div>';
-    return '<div class="modal-match-row"><div><div class="modal-match-num">' + m.label + '</div><div class="modal-match-players">' + playersHTML + '</div></div>' + risHTML + '</div>';
-  }).join('');
+  if (p.risultato) {
+    const sets = p.risultato.trim().split(/\s+/);
+    document.getElementById('modal-matches').innerHTML = sets.map((s, i) =>
+      '<div class="modal-match-row"><div><div class="modal-match-num">Set ' + (i+1) + '</div></div><div class="modal-match-result">' + s + '</div></div>'
+    ).join('');
+  } else {
+    document.getElementById('modal-matches').innerHTML =
+      '<div class="modal-match-row"><div class="modal-match-players">Risultato non ancora disponibile</div></div>';
+  }
 
   let campoLabel = 'Campo Verde';
   if (p.campo === 'ROSSO') campoLabel = 'Campo Rosso';
   else if (p.campo === 'BLU' || p.campo === 'BLUE') campoLabel = 'Campo Blu';
   document.getElementById('modal-date-bar').innerHTML =
-    '<span>\ud83d\udcc5 ' + (p.data || 'Data da definire') + '</span><span>\ud83c\udfbe ' + campoLabel + '</span>';
+    '<span>\ud83d\udcc5 ' + (p.data || 'Data da definire') + '</span>'
+    + (p.orario ? '<span>\u23f0 ' + p.orario + '</span>' : '')
+    + '<span>\ud83c\udfbe ' + campoLabel + '</span>';
 
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -628,7 +623,7 @@ function renderDayBlock(key, tipo) {
       row.className = 'match-row';
       row.dataset.sq1 = p.sq1.toLowerCase();
       row.dataset.sq2 = p.sq2.toLowerCase();
-      row.innerHTML = '<div><span class="campo-pill ' + campoCls + '"><span class="campo-dot" style="' + dotStyle + '"></span>' + campoLbl + '</span></div>'
+      row.innerHTML = '<div><span class="campo-pill ' + campoCls + '"><span class="campo-dot" style="' + dotStyle + '"></span>' + campoLbl + '</span>' + (p.orario ? '<div style="font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px;">' + p.orario + '</div>' : '') + '</div>'
         + '<div class="teams-row"><span class="team-name right">' + p.sq1 + '</span>'
         + (hasResult ? '<span class="score-chip">' + p.p1 + ' \u2013 ' + p.p2 + '</span>' : '<span class="vs-chip">vs</span>')
         + '<span class="team-name">' + p.sq2 + '</span></div>';
