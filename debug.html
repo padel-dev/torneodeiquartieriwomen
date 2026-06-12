@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Debug Sheet</title>
+<style>
+  body { font-family: monospace; background:#111; color:#0f0; padding:20px; font-size:12px; }
+  table { border-collapse: collapse; margin-bottom: 30px; }
+  td, th { border:1px solid #333; padding:4px 8px; }
+  th { color:#5ff; }
+  h2 { color:#fff; }
+  .err { color:#f55; }
+</style>
+</head>
+<body>
+<h2>Debug foglio: Traiano</h2>
+<div id="out-traiano">Caricamento...</div>
+
+<h2>Debug foglio: Arechi</h2>
+<div id="out-arechi">Caricamento...</div>
+
+<script>
+const SPREADSHEET_ID = '14aBgW2ReFiRQNOEPJFG2rgApzQL9QOQvrx0eVfsmuYc';
+const API_KEY        = 'AIzaSyAdN7BX1xID-YDW2ZwAoivSbAPbqz_Tr50';
+
+async function fetchSheet(sheetName) {
+  const fields = 'sheets.data.rowData.values(userEnteredValue,formattedValue,userEnteredFormat.backgroundColor)';
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?ranges=${encodeURIComponent(sheetName)}&fields=${encodeURIComponent(fields)}&key=${API_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' su ' + sheetName + ' — ' + await res.text());
+  const json = await res.json();
+  return json.sheets[0].data[0].rowData || [];
+}
+
+function cellValue(c) {
+  if (!c) return '';
+  const v = c.userEnteredValue;
+  const fmt = (c.formattedValue || '').trim();
+  if (!v) return fmt;
+  if (v.numberValue !== undefined && v.stringValue === undefined) return '[num]' + v.numberValue + ' (fmt:' + fmt + ')';
+  return (v.stringValue || fmt || '');
+}
+
+async function debugSheet(sheetName, outId) {
+  const out = document.getElementById(outId);
+  try {
+    const rows = await fetchSheet(sheetName);
+    let html = '<table><tr><th>Riga</th>';
+    for (let i = 0; i < 12; i++) html += '<th>Col ' + i + '</th>';
+    html += '</tr>';
+    rows.slice(0, 15).forEach((row, ri) => {
+      const cells = row.values || [];
+      html += '<tr><td>' + ri + '</td>';
+      for (let i = 0; i < 12; i++) {
+        html += '<td>' + (cellValue(cells[i]) || '<i style="color:#666">vuoto</i>') + '</td>';
+      }
+      html += '</tr>';
+    });
+    html += '</table>';
+    html += '<p>Totale righe: ' + rows.length + '</p>';
+    out.innerHTML = html;
+  } catch (err) {
+    out.innerHTML = '<p class="err">Errore: ' + err.message + '</p>';
+  }
+}
+
+debugSheet('Traiano', 'out-traiano');
+debugSheet('Arechi', 'out-arechi');
+</script>
+</body>
+</html>
