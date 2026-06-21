@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Debug foglio Tab</title>
+<style>
+  body { background:#0c080a; color:#e8f0ea; font-family: monospace; font-size:13px; padding:2rem; line-height:1.6; }
+  h1 { color:#f06faa; font-size:1.4rem; margin-bottom:1rem; }
+  table { border-collapse: collapse; margin-top:1rem; }
+  td, th { border:1px solid #2b1e24; padding:4px 10px; text-align:left; vertical-align:top; }
+  th { background:#171114; color:#70505e; font-size:11px; }
+  .raw { color:#5a7060; font-size:11px; }
+  .err { color:#e87070; white-space:pre-wrap; }
+  .ok { color:#3fd97a; }
+  .colA { color:#f5c842; font-weight:bold; }
+</style>
+</head>
+<body>
+<h1>Debug: lettura grezza foglio "Tab"</h1>
+<div id="status">Caricamento...</div>
+<div id="output"></div>
+
+<script>
+const spreadsheetId = '14aBgW2ReFiRQNOEPJFG2rgApzQL9QOQvrx0eVfsmuYc';
+const apiKey        = 'AIzaSyAdN7BX1xID-YDW2ZwAoivSbAPbqz_Tr50';
+const sheetName      = 'Tab';
+
+async function debugFetch() {
+  const statusEl = document.getElementById('status');
+  const outEl    = document.getElementById('output');
+  const fields = 'sheets.data.rowData.values(userEnteredValue,formattedValue,userEnteredFormat.backgroundColor)';
+  const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + spreadsheetId
+    + '?ranges=' + encodeURIComponent(sheetName)
+    + '&fields=' + encodeURIComponent(fields)
+    + '&key=' + apiKey;
+
+  statusEl.textContent = 'URL chiamata: ' + url;
+
+  let res;
+  try {
+    res = await fetch(url);
+  } catch (e) {
+    statusEl.innerHTML = '<span class="err">ERRORE DI RETE (fetch fallita prima della risposta): ' + e.message + '</span>';
+    return;
+  }
+
+  if (!res.ok) {
+    const body = await res.text();
+    statusEl.innerHTML = '<span class="err">HTTP ' + res.status + ' ' + res.statusText + '\n\n' + body + '</span>';
+    return;
+  }
+
+  const json = await res.json();
+
+  if (!json.sheets || !json.sheets[0] || !json.sheets[0].data || !json.sheets[0].data[0]) {
+    statusEl.innerHTML = '<span class="err">Risposta OK ma struttura inattesa. JSON completo:\n' + JSON.stringify(json, null, 2) + '</span>';
+    return;
+  }
+
+  const rowData = json.sheets[0].data[0].rowData || [];
+  statusEl.innerHTML = '<span class="ok">OK \u00b7 ' + rowData.length + ' righe ricevute dal foglio "' + sheetName + '"</span>';
+
+  let html = '<table><tr><th>Riga</th><th>Col A (raw)</th><th>Col A (interpretato)</th><th>Col B</th><th>Col C</th><th>Col D</th><th>Col E</th><th>Col F</th></tr>';
+
+  function describe(cell) {
+    if (!cell) return { raw: '(vuota)', interp: '-' };
+    const fmt = cell.formattedValue || '';
+    const v = cell.userEnteredValue;
+    if (!v) return { raw: JSON.stringify(cell), interp: fmt + ' [solo formattedValue]' };
+    if (v.stringValue !== undefined) return { raw: JSON.stringify(v), interp: '"' + v.stringValue + '" [stringValue]' };
+    if (v.numberValue !== undefined) return { raw: JSON.stringify(v), interp: v.numberValue + ' [numberValue, formattedValue="' + fmt + '"]' };
+    if (v.boolValue !== undefined) return { raw: JSON.stringify(v), interp: v.boolValue + ' [boolValue]' };
+    if (v.formulaValue !== undefined) return { raw: JSON.stringify(v), interp: v.formulaValue + ' [formulaValue]' };
+    return { raw: JSON.stringify(v), interp: '? sconosciuto' };
+  }
+
+  rowData.forEach((row, i) => {
+    const cells = row.values || [];
+    const a = describe(cells[0]);
+    const b = describe(cells[1]);
+    const c = describe(cells[2]);
+    const d = describe(cells[3]);
+    const e = describe(cells[4]);
+    const f = describe(cells[5]);
+    html += '<tr>'
+      + '<td>' + (i+1) + '</td>'
+      + '<td class="colA">' + a.interp + '<div class="raw">' + a.raw + '</div></td>'
+      + '<td>' + b.interp + '</td>'
+      + '<td>' + c.interp + '</td>'
+      + '<td>' + d.interp + '</td>'
+      + '<td>' + e.interp + '</td>'
+      + '<td>' + f.interp + '</td>'
+      + '</tr>';
+  });
+  html += '</table>';
+  outEl.innerHTML = html;
+}
+
+debugFetch();
+</script>
+</body>
+</html>
