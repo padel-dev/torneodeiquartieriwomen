@@ -572,10 +572,16 @@ function parseTab(rows) {
     if (v.numberValue !== undefined && v.stringValue === undefined) return serialToDateStr(v.numberValue);
     return (v.stringValue != null ? v.stringValue : (v.numberValue != null ? v.numberValue.toString() : '')).trim() || fmt;
   };
+  // Colonna A ("1-4", "5-8", ...): Google Sheets la interpreta spesso come data,
+  // quindi usiamo sempre il formattedValue grezzo invece di convertirla.
+  const rangeRaw = (cells, i) => {
+    const c = cells[i]; if (!c) return '';
+    return (c.formattedValue || '').trim();
+  };
   const righe = [];
   for (let r = 0; r < rows.length; r++) {
     const cells = rows[r].values || [];
-    const range = parseRangeLabel(val(cells, 0));
+    const range = parseRangeLabel(rangeRaw(cells, 0));
     if (!range) continue;
     righe.push({
       range,
