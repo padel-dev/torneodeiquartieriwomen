@@ -112,6 +112,38 @@
   .loading-dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
 
+  /* ── BRACKET FASE FINALE ── */
+  #bracket-container { margin-bottom: 3rem; }
+  .bracket-block { margin-bottom: 2.4rem; }
+  .bracket-block:last-child { margin-bottom: 0; }
+  .bracket-title { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 3px; color: #fff; margin-bottom: 0.3rem; }
+  .bracket-sub { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 1.5rem; }
+  .bracket-sub.minor { color: var(--muted); margin-bottom: 0.8rem; }
+  .bracket-grid { display: grid; grid-template-columns: 1fr 90px 1fr; align-items: center; gap: 0; position: relative; }
+  .bracket-col-sf { display: flex; flex-direction: column; gap: 28px; }
+  .bracket-card { background: var(--card); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+  .bracket-card-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; border-bottom: 1px solid var(--border); }
+  .bracket-time { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+  .bracket-teams { padding: 8px 12px; }
+  .bracket-team { font-family: var(--font-display); font-size: 1rem; letter-spacing: 1.5px; color: #fff; padding: 4px 0; }
+  .bracket-team.tbd { color: var(--muted); font-family: var(--font-body); font-size: 12px; letter-spacing: 0; font-style: italic; }
+  .bracket-vs { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; padding: 1px 0; }
+  .bracket-center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; min-height: 80px; }
+  .bracket-connector { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+  .bracket-final-card { background: var(--card); border: 1px solid var(--accent-mid); border-radius: 5px; overflow: hidden; cursor: default; }
+  .bracket-final-card.clickable { cursor: pointer; transition: border-color 0.18s; }
+  .bracket-final-card.clickable:hover { border-color: var(--accent); }
+  .bracket-final-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; border-bottom: 1px solid var(--border); background: var(--accent-dim); }
+  .bracket-final-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-light); font-weight: 500; }
+  .bracket-final-teams { padding: 8px 12px; }
+  .bracket-final-placeholder { font-size: 11px; color: var(--muted); letter-spacing: 1px; font-style: italic; display: block; padding: 4px 0; }
+  .bracket-final-result { font-family: var(--font-display); font-size: 1.3rem; letter-spacing: 2px; color: var(--accent-light); text-align: center; padding: 4px 0; }
+  @media (max-width: 640px) {
+    .bracket-grid { grid-template-columns: 1fr; gap: 14px; }
+    .bracket-center { min-height: 40px; }
+    .bracket-connector { display: none; }
+  }
+
   /* ── MODAL ── */
   .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 1.5rem; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
   .modal-overlay.open { opacity: 1; pointer-events: all; }
@@ -283,6 +315,7 @@
       <div class="filter-sep"></div>
       <input class="fsearch" id="f-squadra" type="text" placeholder="Cerca squadra..." oninput="applyFilters()">
     </div>
+    <div id="bracket-container"></div>
     <div id="calendario-container">
       <div class="loading-msg">Caricamento<span class="loading-dot">.</span><span class="loading-dot">.</span><span class="loading-dot">.</span></div>
     </div>
@@ -364,7 +397,7 @@ let calGiorniMap    = new Map();
 let calSortedKeys   = [];
 let calFiltroGirone = 'tutti';
 let calFuturiKeys   = [];
-let passatiVisible  = true;
+let passatiVisible  = false;
 
 function initFromConfig() {
   const root = document.documentElement;
@@ -522,6 +555,140 @@ function parseGirone(rows) {
   return { partite, squadre: Object.values(map).sort((a,b) => b.pt - a.pt || b.v - a.v) };
 }
 
+// ── BRACKET FASE FINALE (foglio "Tab") ───────────────────────────────────────
+let bracketData = null;
+
+function parseRangeLabel(raw) {
+  const m = String(raw || '').trim().match(/^(\d+)\s*-\s*(\d+)$/);
+  return m ? { a: parseInt(m[1]), b: parseInt(m[2]) } : null;
+}
+
+function parseTab(rows) {
+  const val = (cells, i) => {
+    const c = cells[i]; if (!c) return '';
+    const fmt = (c.formattedValue || '').trim();
+    const v = c.userEnteredValue;
+    if (!v) return fmt;
+    if (v.numberValue !== undefined && v.stringValue === undefined) return serialToDateStr(v.numberValue);
+    return (v.stringValue != null ? v.stringValue : (v.numberValue != null ? v.numberValue.toString() : '')).trim() || fmt;
+  };
+  const righe = [];
+  for (let r = 0; r < rows.length; r++) {
+    const cells = rows[r].values || [];
+    const range = parseRangeLabel(val(cells, 0));
+    if (!range) continue;
+    righe.push({
+      range,
+      sq1:    val(cells, 1),
+      sq2:    val(cells, 2),
+      data:   val(cells, 3),
+      campo:  val(cells, 4).toUpperCase(),
+      orario: val(cells, 5),
+    });
+  }
+  // Raggruppa per "gruppo" in base al range della semifinale superiore (es. 1-4, 5-8)
+  const gruppi = new Map();
+  let gruppoCorrente = null;
+  righe.forEach(row => {
+    const isSemi = row.range.b - row.range.a >= 2;
+    if (isSemi) {
+      gruppoCorrente = row.range.a + '-' + row.range.b;
+      if (!gruppi.has(gruppoCorrente)) gruppi.set(gruppoCorrente, { label: row.range.a + '\u00b0\u2013' + row.range.b + '\u00b0 posto', semifinali: [], finali: [] });
+      gruppi.get(gruppoCorrente).semifinali.push(row);
+    } else if (gruppoCorrente) {
+      gruppi.get(gruppoCorrente).finali.push(row);
+    }
+  });
+  return [...gruppi.values()];
+}
+
+function bracketCard(row, opts) {
+  opts = opts || {};
+  let campoCls, campoLbl;
+  if (row.campo === 'ROSSO')                            { campoCls='campo-r'; campoLbl='Campo Rosso'; }
+  else if (row.campo === 'BLU' || row.campo === 'BLUE') { campoCls='campo-b'; campoLbl='Campo Blu'; }
+  else if (row.campo)                                   { campoCls='campo-g'; campoLbl='Campo Verde'; }
+  const campoHtml = campoCls ? '<span class="campo-pill ' + campoCls + '">' + campoLbl + '</span>' : '<span></span>';
+  const timeHtml = (row.data || row.orario) ? '<span class="bracket-time">' + [row.data, row.orario].filter(Boolean).join(' \u00b7 ') + '</span>' : '';
+  const hasTeams = row.sq1 && row.sq2;
+  const teamsHtml = hasTeams
+    ? '<div class="bracket-team">' + row.sq1 + '</div><div class="bracket-vs">vs</div><div class="bracket-team">' + row.sq2 + '</div>'
+    : '<span class="bracket-team tbd">' + (opts.placeholder || 'Da definire') + '</span>';
+  return '<div class="bracket-card"><div class="bracket-card-head">' + campoHtml + timeHtml + '</div><div class="bracket-teams">' + teamsHtml + '</div></div>';
+}
+
+function bracketConnectorSVG() {
+  return '<svg class="bracket-connector" viewBox="0 0 90 220" preserveAspectRatio="none">'
+    + '<path d="M0 38 H30 V110 H60" fill="none" stroke="var(--accent-mid)" stroke-width="1.5"/>'
+    + '<path d="M0 182 H30 V110 H60" fill="none" stroke="var(--accent-mid)" stroke-width="1.5"/>'
+    + '</svg>';
+}
+
+function bracketFinalCard(row, label, placeholder) {
+  let campoLbl = '';
+  if (row && row.campo === 'ROSSO') campoLbl = 'rosso';
+  else if (row && (row.campo === 'BLU' || row.campo === 'BLUE')) campoLbl = 'blu';
+  else if (row && row.campo) campoLbl = 'verde';
+  const timeBits = [];
+  if (row && row.data) timeBits.push(row.data);
+  if (campoLbl) timeBits.push(campoLbl);
+  if (row && row.orario) timeBits.push(row.orario);
+  const timeHtml = timeBits.length ? '<span class="bracket-time">' + timeBits.join(' \u00b7 ') + '</span>' : '';
+  const hasTeams = row && row.sq1 && row.sq2;
+  let bodyHtml;
+  if (hasTeams) {
+    bodyHtml = '<div class="bracket-team">' + row.sq1 + '</div><div class="bracket-vs">vs</div><div class="bracket-team">' + row.sq2 + '</div>';
+  } else {
+    bodyHtml = '<span class="bracket-final-placeholder">' + placeholder + '</span>';
+  }
+  return '<div class="bracket-final-card"><div class="bracket-final-head"><span class="bracket-final-label">' + label + '</span>' + timeHtml + '</div><div class="bracket-final-teams">' + bodyHtml + '</div></div>';
+}
+
+function renderBracketGroup(gruppo) {
+  const sf = gruppo.semifinali;
+  const fin = gruppo.finali;
+  const a = gruppo.label.match(/^(\d+)/)[1];
+  const top = fin[0];
+  const bottom = fin[1];
+  let html = '<div class="bracket-block">';
+  html += '<div class="bracket-title">Fase finale</div>';
+  html += '<div class="bracket-sub">' + gruppo.label + '</div>';
+  html += '<div class="bracket-grid">';
+  html += '<div class="bracket-col-sf">' + sf.map(r => bracketCard(r)).join('') + '</div>';
+  html += '<div class="bracket-center">' + bracketConnectorSVG() + '</div>';
+  html += bracketFinalCard(top, 'Finale ' + (top ? top.range.a + '\u00b0-' + top.range.b + '\u00b0' : ''), 'Vincenti semifinali');
+  html += '</div></div>';
+  if (bottom) {
+    html += '<div class="bracket-block">';
+    html += '<div class="bracket-sub minor">' + bottom.range.a + '\u00b0\u2013' + bottom.range.b + '\u00b0 posto</div>';
+    html += '<div class="bracket-grid">';
+    html += '<div class="bracket-col-sf"><div style="height:1px"></div></div>';
+    html += '<div class="bracket-center"></div>';
+    html += bracketFinalCard(bottom, 'Finale ' + bottom.range.a + '\u00b0-' + bottom.range.b + '\u00b0', 'Perdenti semifinali');
+    html += '</div></div>';
+  }
+  return html;
+}
+
+function buildBracket() {
+  const container = document.getElementById('bracket-container');
+  if (!container) return;
+  if (!bracketData || bracketData.length === 0) { container.innerHTML = ''; return; }
+  container.innerHTML = bracketData.map(renderBracketGroup).join('<div style="border-top:1px solid var(--border);margin:2.4rem 0"></div>');
+}
+
+async function loadBracket() {
+  try {
+    const rows = await fetchSheet('Tab');
+    bracketData = parseTab(rows);
+    buildBracket();
+  } catch(err) {
+    const bc = document.getElementById('bracket-container');
+    if (bc) bc.innerHTML = '';
+    console.error('Bracket non disponibile:', err.message);
+  }
+}
+
 // ── MODAL ─────────────────────────────────────────────────────────────────────
 function openModal(p, cfg) {
   const hasResult = p.p1 !== '' && p.p2 !== '';
@@ -663,17 +830,16 @@ function buildCalendario() {
     bar.textContent = 'Partite disputate (' + keyPassati.length + ')';
     container.appendChild(bar);
     const btnToggle = document.createElement('button');
-    btnToggle.className = 'btn-toggle-passati open';
+    btnToggle.className = 'btn-toggle-passati';
     btnToggle.id = 'btn-toggle-passati';
-    btnToggle.innerHTML = '<span class="arrow">\u25b2</span> Nascondi partite passate';
+    btnToggle.innerHTML = '<span class="arrow">\u25bc</span> Mostra partite passate';
     btnToggle.onclick = togglePassati;
     container.appendChild(btnToggle);
     const wrapper = document.createElement('div');
     wrapper.id = 'cal-passati-wrapper';
-    wrapper.className = 'open';
     keyPassati.forEach(key => wrapper.appendChild(renderDayBlock(key, 'passato')));
     container.appendChild(wrapper);
-    passatiVisible = true;
+    passatiVisible = false;
   }
 
   if (keyProssimo) {
@@ -805,6 +971,7 @@ async function loadGironi() {
     }));
     buildCalendario();
     buildClassifiche();
+    loadBracket();
   } catch(err) {
     const cc = document.getElementById('calendario-container');
     if (cc) cc.innerHTML = '<div class="loading-msg" style="color:#d94f4f;">Errore caricamento.<br><span style="font-size:11px;">' + err.message + '</span></div>';
