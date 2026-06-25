@@ -122,12 +122,17 @@
   .bracket-grid { display: grid; grid-template-columns: 1fr 90px 1fr; align-items: center; gap: 0; position: relative; }
   .bracket-col-sf { display: flex; flex-direction: column; gap: 28px; }
   .bracket-card { background: var(--card); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+  .bracket-card.clickable { cursor: pointer; transition: border-color 0.18s; }
+  .bracket-card.clickable:hover { border-color: var(--accent); }
   .bracket-card-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; border-bottom: 1px solid var(--border); }
   .bracket-time { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
   .bracket-teams { padding: 8px 12px; }
-  .bracket-team { font-family: var(--font-display); font-size: 1rem; letter-spacing: 1.5px; color: #fff; padding: 4px 0; }
+  .bracket-team-row { display: flex; align-items: center; gap: 8px; }
+  .bracket-team { font-family: var(--font-display); font-size: 1rem; letter-spacing: 1.5px; color: #fff; padding: 4px 0; flex: 1; }
+  .bracket-team.winner { color: var(--accent-light); }
   .bracket-team.tbd { color: var(--muted); font-family: var(--font-body); font-size: 12px; letter-spacing: 0; font-style: italic; }
-  .bracket-vs { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; padding: 1px 0; }
+  .bracket-score { font-family: var(--font-display); font-size: 1rem; letter-spacing: 2px; color: var(--accent-light); background: var(--bg2); border: 1px solid var(--border); border-radius: 3px; padding: 2px 8px; flex-shrink: 0; white-space: nowrap; }
+  .bracket-vs { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; padding: 1px 0; flex-shrink: 0; }
   .bracket-center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; min-height: 80px; }
   .bracket-connector { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
   .bracket-final-card { background: var(--card); border: 1px solid var(--accent-mid); border-radius: 5px; overflow: hidden; cursor: default; }
@@ -564,32 +569,40 @@ function parseRangeLabel(raw) {
 }
 
 function parseTab(rows) {
-  const val = (cells, i) => {
-    const c = cells[i]; if (!c) return '';
-    const fmt = (c.formattedValue || '').trim();
-    const v = c.userEnteredValue;
-    if (!v) return fmt;
-    if (v.numberValue !== undefined && v.stringValue === undefined) return serialToDateStr(v.numberValue);
-    return (v.stringValue != null ? v.stringValue : (v.numberValue != null ? v.numberValue.toString() : '')).trim() || fmt;
-  };
-  // Colonna A ("1-4", "5-8", ...): Google Sheets la interpreta spesso come data,
-  // quindi usiamo sempre il formattedValue grezzo invece di convertirla.
-  const rangeRaw = (cells, i) => {
+  // Col 0 (range "1-4") e col 3 (data) sono serial numerici in Sheets:
+  // usiamo sempre formattedValue per entrambi.
+  const fmtVal = (cells, i) => {
     const c = cells[i]; if (!c) return '';
     return (c.formattedValue || '').trim();
+  };
+  const strVal = (cells, i) => {
+    const c = cells[i]; if (!c) return '';
+    const v = c.userEnteredValue;
+    if (!v) return (c.formattedValue || '').trim();
+    return (v.stringValue || c.formattedValue || '').trim();
+  };
+  const intVal = (cells, i) => {
+    const c = cells[i]; if (!c) return '';
+    const v = c.userEnteredValue;
+    if (!v) return (c.formattedValue || '').trim();
+    if (v.numberValue !== undefined) return String(Math.round(v.numberValue));
+    return (v.stringValue || '').trim();
   };
   const righe = [];
   for (let r = 0; r < rows.length; r++) {
     const cells = rows[r].values || [];
-    const range = parseRangeLabel(rangeRaw(cells, 0));
+    const range = parseRangeLabel(fmtVal(cells, 0));  // usa formattedValue per col 0
     if (!range) continue;
     righe.push({
       range,
-      sq1:    val(cells, 1),
-      sq2:    val(cells, 2),
-      data:   val(cells, 3),
-      campo:  val(cells, 4).toUpperCase(),
-      orario: val(cells, 5),
+      sq1:       strVal(cells, 1),
+      sq2:       strVal(cells, 2),
+      data:      fmtVal(cells, 3),  // usa formattedValue per la data
+      campo:     strVal(cells, 4).toUpperCase(),
+      orario:    strVal(cells, 5),
+      risultato: strVal(cells, 6),
+      p1:        intVal(cells, 7),
+      p2:        intVal(cells, 8),
     });
   }
   // Raggruppa per "gruppo" in base al range della semifinale superiore (es. 1-4, 5-8)
@@ -617,10 +630,30 @@ function bracketCard(row, opts) {
   const campoHtml = campoCls ? '<span class="campo-pill ' + campoCls + '">' + campoLbl + '</span>' : '<span></span>';
   const timeHtml = (row.data || row.orario) ? '<span class="bracket-time">' + [row.data, row.orario].filter(Boolean).join(' \u00b7 ') + '</span>' : '';
   const hasTeams = row.sq1 && row.sq2;
-  const teamsHtml = hasTeams
-    ? '<div class="bracket-team">' + row.sq1 + '</div><div class="bracket-vs">vs</div><div class="bracket-team">' + row.sq2 + '</div>'
-    : '<span class="bracket-team tbd">' + (opts.placeholder || 'Da definire') + '</span>';
-  return '<div class="bracket-card"><div class="bracket-card-head">' + campoHtml + timeHtml + '</div><div class="bracket-teams">' + teamsHtml + '</div></div>';
+  const hasResult = hasTeams && row.p1 !== '' && row.p2 !== '';
+  let teamsHtml;
+  if (hasTeams) {
+    const p1 = parseInt(row.p1), p2 = parseInt(row.p2);
+    const scoreHtml = hasResult
+      ? '<span class="bracket-score">' + row.p1 + '\u2013' + row.p2 + '</span>'
+      : '<span class="bracket-vs">vs</span>';
+    teamsHtml = '<div class="bracket-team-row">'
+      + '<div class="bracket-team' + (hasResult && p1 > p2 ? ' winner' : '') + '">' + row.sq1 + '</div>'
+      + scoreHtml
+      + '<div class="bracket-team' + (hasResult && p2 > p1 ? ' winner' : '') + '">' + row.sq2 + '</div>'
+      + '</div>';
+  } else {
+    const knownTeam = row.sq1 || row.sq2;
+    teamsHtml = knownTeam
+      ? '<div class="bracket-team-row"><div class="bracket-team">' + knownTeam + '</div><span class="bracket-vs">vs</span><div class="bracket-team tbd">Da definire</div></div>'
+      : '<div class="bracket-team tbd">' + (opts.placeholder || 'Da definire') + '</div>';
+  }
+  const clickable = hasResult ? ' clickable' : '';
+  const idAttr = opts.cardId ? ' id="' + opts.cardId + '"' : '';
+  return '<div class="bracket-card' + clickable + '"' + idAttr + '>'
+    + '<div class="bracket-card-head">' + campoHtml + timeHtml + '</div>'
+    + '<div class="bracket-teams">' + teamsHtml + '</div>'
+    + '</div>';
 }
 
 function bracketConnectorSVG() {
@@ -653,16 +686,22 @@ function bracketFinalCard(row, label, placeholder) {
 function renderBracketGroup(gruppo) {
   const sf = gruppo.semifinali;
   const fin = gruppo.finali;
-  const a = gruppo.label.match(/^(\d+)/)[1];
   const top = fin[0];
   const bottom = fin[1];
+  const groupKey = gruppo.label.replace(/[^a-z0-9]/gi,'');
+
+  const sfCards = sf.map((r, i) => {
+    const id = 'bcard-' + groupKey + '-sf' + i;
+    return { html: bracketCard(r, { cardId: id }), row: r, id };
+  });
+
   let html = '<div class="bracket-block">';
   html += '<div class="bracket-title">Fase finale</div>';
   html += '<div class="bracket-sub">' + gruppo.label + '</div>';
   html += '<div class="bracket-grid">';
-  html += '<div class="bracket-col-sf">' + sf.map(r => bracketCard(r)).join('') + '</div>';
+  html += '<div class="bracket-col-sf">' + sfCards.map(x => x.html).join('') + '</div>';
   html += '<div class="bracket-center">' + bracketConnectorSVG() + '</div>';
-  html += bracketFinalCard(top, 'Finale ' + (top ? top.range.a + '\u00b0-' + top.range.b + '\u00b0' : ''), 'Vincenti semifinali');
+  html += bracketFinalCard(top, 'Finale ' + (top ? top.range.a + '\u00b0\u2013' + top.range.b + '\u00b0' : ''), 'Vincenti semifinali');
   html += '</div></div>';
   if (bottom) {
     html += '<div class="bracket-block">';
@@ -670,9 +709,16 @@ function renderBracketGroup(gruppo) {
     html += '<div class="bracket-grid">';
     html += '<div class="bracket-col-sf"><div style="height:1px"></div></div>';
     html += '<div class="bracket-center"></div>';
-    html += bracketFinalCard(bottom, 'Finale ' + bottom.range.a + '\u00b0-' + bottom.range.b + '\u00b0', 'Perdenti semifinali');
+    html += bracketFinalCard(bottom, 'Finale ' + bottom.range.a + '\u00b0\u2013' + bottom.range.b + '\u00b0', 'Perdenti semifinali');
     html += '</div></div>';
   }
+  setTimeout(() => {
+    sfCards.forEach(({ row, id }) => {
+      if (row.p1 === '' || row.p2 === '') return;
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => openModalBracket(row));
+    });
+  }, 0);
   return html;
 }
 
@@ -738,6 +784,35 @@ function closeModalOnOverlay(e) {
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function openModalBracket(row) {
+  const hasResult = row.p1 !== '' && row.p2 !== '';
+  document.getElementById('modal-girone-dot').style.background = 'var(--accent)';
+  document.getElementById('modal-girone-label').textContent = 'Fase Finale · ' + row.range.a + '°–' + row.range.b + '° posto';
+  document.getElementById('modal-sq1').textContent = row.sq1 || '—';
+  document.getElementById('modal-sq2').textContent = row.sq2 || '—';
+  const scoreEl = document.getElementById('modal-final-score');
+  scoreEl.textContent = hasResult ? (row.p1 + ' – ' + row.p2) : 'vs';
+  scoreEl.style.color = hasResult ? 'var(--accent-light)' : 'var(--muted)';
+  if (row.risultato) {
+    const sets = row.risultato.trim().split(/\s+/);
+    document.getElementById('modal-matches').innerHTML = sets.map((s, i) =>
+      '<div class="modal-match-row"><div><div class="modal-match-num">Set ' + (i+1) + '</div></div><div class="modal-match-result">' + s + '</div></div>'
+    ).join('');
+  } else {
+    document.getElementById('modal-matches').innerHTML =
+      '<div class="modal-match-row"><div class="modal-match-players">Risultato non ancora disponibile</div></div>';
+  }
+  let campoLabel = 'Campo Verde';
+  if (row.campo === 'ROSSO') campoLabel = 'Campo Rosso';
+  else if (row.campo === 'BLU' || row.campo === 'BLUE') campoLabel = 'Campo Blu';
+  document.getElementById('modal-date-bar').innerHTML =
+    '<span>\ud83d\udcc5 ' + (row.data || 'Data da definire') + '</span>'
+    + (row.orario ? '<span>\u23f0 ' + row.orario + '</span>' : '')
+    + '<span>\ud83c\udfbe ' + campoLabel + '</span>';
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
 
 // ── BUILD GIORNIMAP ───────────────────────────────────────────────────────────
 function buildGiorniMap() {
