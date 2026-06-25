@@ -50,7 +50,7 @@ async function debugSheet(sheetName, outId) {
     let html = '<table><tr><th>Riga</th>';
     for (let i = 0; i < 12; i++) html += '<th>Col ' + i + '</th>';
     html += '</tr>';
-    rows.slice(0, 35).forEach((row, ri) => {
+    rows.slice(0, 65).forEach((row, ri) => {
       const cells = row.values || [];
       html += '<tr><td>' + ri + '</td>';
       for (let i = 0; i < 12; i++) {
